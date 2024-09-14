@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
+Created on Sun Nov 26 17:30:56 2023
 
+@author: noga mudrik
 
 NOTES ON PREDICTIONS:
     -  ONE STEP:
@@ -23,13 +25,19 @@ from sklearn.linear_model import OrthogonalMatchingPursuit
 from scipy.optimize import linear_sum_assignment
 import time
 import os
-import cmath
+#import cmath
 from sklearn.linear_model import OrthogonalMatchingPursuit
 in_local = True
 """
 make latex
 """
+# from matplotlib import rc
+# import matplotlib.pylab as plt
 
+# rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+# rc('text', usetex=True)
+#import matplotlib as mpl
+#mpl.rcParams.update(mpl.rcParamsDefault)
 
 try:
     import pylops
@@ -194,7 +202,8 @@ def pad_mat(mat, pad_val = np.nan, size_each = 1, axis = 1):
     return mat
 
 def mov_avg(c, axis = 1, wind = 5):
-
+    #print('As.shape')
+    #print(c.shape)
     if len(c.shape) == 2 and axis == 1:
         if np.mod(wind,2) == 0:
             wind += 1
@@ -283,12 +292,23 @@ def add_labels(ax, xlabel='X', ylabel='Y', zlabel='', title='', xlim = None, yli
       ax.set_yticks(yticks);
       ax.set_yticklabels(yticklabels);
   if len(legend)       > 0:  ax.legend(legend)
-
+  if format_xticks > 0:
+      ax.xaxis.set_major_formatter(FormatStrFormatter('%.%df'%format_xticks))
+  if format_yticks > 0:      
+      ax.yaxis.set_major_formatter(FormatStrFormatter('%.%df'%format_yticks))
+      
 
 
 def create_lorenz(psi0 = [0.1, 0.1, 0], dt = 0.010, max_t = 3,
                   sigma = 10, beta = 8/3, rho = 28, return_operators = True, option = 1):
-
+    # {'psi0': [0.2127086755529508, 2.6381260266588527, 1.0635433777647538],
+    # 'dt': 0.024647819173282542,
+    # 'max_t': 6,
+    # 'sigma': 10.425417351105901,
+    # 'beta': 2.546042008886284,
+    # 'rho': 26.97792145774131,
+    # 'return_operators': True,
+    # 'option': 2}
     psi = np.array(psi0).reshape((-1,1))
     """
     define A
@@ -401,7 +421,45 @@ def create_lorenz_mat(psi, sigma, beta, rho, option = 1):
     return A
     
     
-
+def add_basic_axes(ax = [], fig = [], max_z = 1, max_x = 1, max_y = 1, 
+                   min_z = 0, min_x = 0, min_y = 0,  
+                   params_subplot = {},
+                   params_plot = {'color' : 'black', 'w': 4,  'ls':'-' ,'mutation':20, 
+                                  'arrowstyle':"-|>", 
+                                  'linewidth': 2}, remove_back = True, 
+                   remove_grid = True,  remove_axes = False, remove_ticks = False):    
+    # 
+    if checkEmptyList(ax):
+        fig, ax = create_3d_ax(1, 1, params_subplot)
+    
+    dx = max_x - min_x
+    dy = max_y - min_y
+    dz = max_z - min_z 
+    # """
+    # x
+    # """ 
+    # ax.arrow3D(min_x,min_y,min_z,
+    #       dx,dy,dz,
+    #        mutation_scale=params_plot['mutation'],
+    #        arrowstyle=params_plot['arrowstyle'],
+    #        linestyle=params_plot['ls'], color = params_plot['color'], 
+    #        linewidth = params_plot['linewidth'])        
+    # #y 
+    # ax.arrow3D(min_x,min_y,min_z,      dx,dy,dz,
+    #         mutation_scale=params_plot['mutation'],
+    #         arrowstyle=params_plot['arrowstyle'],
+    #         linestyle=params_plot['ls'], color = params_plot['color'],
+    #         linewidth = params_plot['linewidth'])   
+    
+    # #z 
+    # ax.arrow3D(min_x,min_y,min_z,
+    #      dx,dy,dz,
+    #         mutation_scale=params_plot['mutation'],
+    #         arrowstyle=params_plot['arrowstyle'],
+    #         linestyle=params_plot['ls'], color = params_plot['color'],
+    #         linewidth = params_plot['linewidth'])
+    
+    to_remove_back(ax, remove_back, remove_grid,  remove_axes, remove_ticks)
         
         
 def to_remove_back(ax, remove_back = True, remove_grid = True, remove_axes = False, remove_ticks = False):
@@ -478,7 +536,13 @@ def is_1d(mat):
     else: raise ValueError('Mat must be numpy array or a list')
     return np.max(mat.shape) == len(mat.flatten())
 
-
+def save_fig(name_fig,fig, save_path = '', formats = ['png','svg'], params_save = {'transparent':True}) :
+    if len(save_path) == 0:
+        save_path = os.getcwd()
+        
+    [fig.savefig(save_path + os.sep + '%s.%s'%(name_fig, format_i), **params_save) for format_i in formats]
+        
+        
 
 def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0, nouter = 50,
                       ):
@@ -523,13 +587,13 @@ def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0,
                
                - . Refers to the way the coefficients should be claculated (inv -> no l1 regularization)
   """ 
-
+  #print(params['solver'])
   params = {**{'threshkind':'soft','solver':'spgl1','num_iters':10}, **params}
   print(params['solver'])
-
+  #print( params['solver'].lower() )
   if np.isnan(A).any():
       print('there is a nan in A')
-
+      #input('ok? solve_Lasso_style')
   if len(b.flatten()) == np.max(b.shape):
       b = b.reshape((-1,1))
   if 'solver' not in params.keys():
@@ -538,7 +602,7 @@ def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0,
 
   if params['solver'] == 'inv' or l1 == 0:
 
-   
+      #input('jgkljglkfjkgjf')
       if is_1d(A):
           pinv_A = linalg.pinv(A).reshape((-1,1))
 
@@ -550,14 +614,15 @@ def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0,
       #fixing try without warm start
     clf = linear_model.Lasso(alpha=l1,random_state=random_state, **lasso_params)
 
-
-    clf.fit(A,b.flatten() )   
+    #input('ok?')
+    clf.fit(A,b.flatten() )     #reshape((-1,1))
     x = np.array(clf.coef_)
 
   elif params['solver'].lower() == 'fista' :
       Aop = pylops.MatrixMult(A)
   
-
+      #if 'threshkind' not in params: params['threshkind'] ='soft'
+      #other_params = {'':other_params[''],
       x = pylops.optimization.sparsity.FISTA(Aop, b.flatten(), niter=params['num_iters'],
                                              eps = l1 , threshkind =  params.get('threshkind') )[0]
   elif params['solver'].lower() == 'ista' :
@@ -569,12 +634,13 @@ def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0,
                                                  eps = l1,threshkind =  params.get('threshkind'))[0]
       
   elif params['solver'].lower() == 'omp' :
-
+      #print(A.shape[1] - l1)
+      #input('?')
       omp = OrthogonalMatchingPursuit(n_nonzero_coefs=A.shape[1] - l1, fit_intercept   = False)
       omp.fit(A,b)
+      #Aop = pylops.MatrixMult(A)
 
-
-      x  = omp.coef_ 
+      x  = omp.coef_ # pylops.optimization.sparsity.OMP(Aop, b.flatten(),                                                  niter_outer=params['num_iters'], sigma = l1)[0]     
   elif params['solver'].lower() == 'spgl1' :
       print('here spgl1!!!!!!!!!!')
       Aop = pylops.MatrixMult(A)
@@ -592,7 +658,31 @@ def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0,
 
 import pandas as pd    
 
-
+def count_freq(x, x_ind = 0, y_ind = 1, time_check = 5, return_rad = False):
+    x_center = x.mean(1)[0]
+    y_center = x.mean(1)[1]
+    x1 = x[x_ind,5] -  x_center#[0]
+    x2 = x[x_ind,6] - x_center#models_results_b['Observed'][0]
+    y1 = x[y_ind,5] - y_center#models_results_b['Observed'][1]
+    y2 = x[y_ind,6] - y_center# models_results_b['Observed'][1]    
+    call_diff = np.tan(y2/x2) - np.tan(y1/x1) #/np.pi*180  #+ 180
+    return call_diff if return_rad else call_diff/np.pi*180
+    
+def number_of_points_2_circles(num_samples, x, params_freq = {}, return_angle = False): 
+    dW = count_freq(x, **params_freq)
+    num_samples_per_circle = 360/dW   
+    if not return_angle:
+        return num_samples/num_samples_per_circle
+    else:
+        return num_samples/num_samples_per_circle,  dW
+    
+    
+    
+    
+    
+    
+    
+    
 def pad_mat(mat, pad_val, size_each = 1, axis = 1):
     if axis == 1:
         each_pad = np.ones((mat.shape[0], size_each))*pad_val
@@ -677,7 +767,7 @@ def create_legend(dict_legend, size = 30, save_formats = ['.png','.svg'],
         else:
             [ax.scatter([],[], s=s,c = dict_legend[area], label = area, marker = dict_legend_marker.get(area), **plot_params) for area in dict_legend]
     ax.legend(prop = {'size':size},**params_leg)
-    remove_edges(ax, left = False, bottom = False, include_ticks = False)
+    remove_edges(ax, left = False, bottom = False)
     fig.tight_layout()
     if to_save:
         [fig.savefig(save_path + os.sep + 'legend_areas_%s%s'%(save_addi,type_save)) 
@@ -726,7 +816,8 @@ def from_spike_times_to_rate(spike_dict, type_convert = 'discrete',
     if T_min > 0:
         spike_dict = {key:val - T_min for key,val in spike_dict.items()}
         spike_dict = {key : val[val > 0] for key,val in spike_dict.items()}
-
+        print(len(list(spike_dict.values())[0] ))
+        #max_val = max_val - T_min 
         
     """
     make sure keys are continues
@@ -748,7 +839,11 @@ def from_spike_times_to_rate(spike_dict, type_convert = 'discrete',
         
         
     N = len(spike_dict)
-
+    # if (min_val < 0 and T_min == 0) or T_min > 0:
+    #     if T_min == 0:
+    #         T_min = min_val
+    #     spike_dict = {key : val - T_min for key,val in spike_dict.items()}
+    #     spike_dict = {key : val[val > 0] for key,val in spike_dict.items()}
         
     if T_min > 0:
         max_val = max_val - T_min     
@@ -766,7 +861,14 @@ def from_spike_times_to_rate(spike_dict, type_convert = 'discrete',
         
         data = np.ones(len(rows))  # Assuming all values are 1
         sparse_mat = coo_matrix((data, (rows, cols)), shape=(N, max_val))
+        
+        # for count, (neuron, times) in enumerate(spike_dict.items()):
+                
+        #     times_within = times.astype(int) #- max_min_per_file[neural_key][0]
 
+        #     max_ind = times_within[(times_within > T_min ) & (times_within < T_max)]
+
+        #     firing_rate_mat[count, max_ind] += 1
 
         firing_rate_mat = sparse_mat.toarray()
         firing_rate_mat_gauss = gaussian_convolve(firing_rate_mat,  **params_gauss)
@@ -797,12 +899,16 @@ def one_step_prediction(x, As, t = -1, k = -1, t_start = -1, t_end = -1, offset 
     here is 1 step (1_step) predicution for reconstructing the data
     """
     if checkEmptyList(offset):
-
+        #print(len([1,2,3]) == 3)
         if is_1d(x) and  (len(As.shape) == 2 or As.shape[-1] == 1):
             if len(As.shape) == 3 and  As.shape[-1] == 1:
                 As = As[:,:,-1]
+            #print(As.shape)
 
-            return ( As @ x.reshape((-1,1)) ).reshape((-1,1)) 
+            #print(len(As.shape))
+            #print(len(As.shape) == 3)
+            #print(As.shape[-1] == 1)
+            return ( As @ x.reshape((-1,1)) ).reshape((-1,1)) # + offset.reshape((-1,1))   
             
             
         elif t == -1 :
@@ -822,13 +928,13 @@ def one_step_prediction(x, As, t = -1, k = -1, t_start = -1, t_end = -1, offset 
     else:
         if is_1d(offset):
             offset = offset.reshape((-1,1))
-        if is_1d(x) and  (len(As).shape == 2 or As.shape[-1] == 1):
+        if is_1d(x) and  (len(As) == 2 or As.shape[-1] == 1):
             if As.shape[-1] == 1:
                 As = As[:,:,-1]
             return (x.reshape((-1,1)) @ As).reshape((-1,1)) + offset          
         else:
-    
-            if  len(As.shape) == 2 or (len(As.shape) == 3 and  As.shape[-1] == 1):
+            print(As)
+            if  len(As) == 2 or (len(As) == 3 and  As.shape[-1] == 1):
                 T = x.shape[1] - 1
                 As = np.dstack([As] * T)
             
@@ -862,7 +968,8 @@ def d3tolist(F_3d):
         
 def k_step_prediction_linear(x, As, K, store_mid = True, t = -1, offset = []): 
     print('pay attention k_step does not store mid!')
-
+    #print('jjjjjjjjjjjjjjjjjjjjjjjjj')
+    # PAY ATTENTION T IS NOT INVOLVED HERE
     if K == 1 and checkEmptyList(offset):
         if len(As.shape) == 3 and As.shape[-1] == 1:
             As = As[:,:,0]
@@ -874,17 +981,20 @@ def k_step_prediction_linear(x, As, K, store_mid = True, t = -1, offset = []):
         raise ValueError('future implement!')
     x_partly = x[:,:-K]
     x0 = x[:,0].reshape((-1,1))
-
+    #for k_i in range(K):
     if  checkEmptyList(offset):    
         x_k =  np.linalg.matrix_power(As,K) @ x_partly
     else:
         left1 = np.linalg.matrix_power(As,K)
         
-
+        #print(As.shape)
         left2 = np.sum(np.dstack([
             np.linalg.matrix_power(As,k_i) for k_i in range(K)
             ]),2) @ offset.reshape((-1,1))
-
+        # print(left2)
+        # print('???????????????')
+        # print(offset)
+        # print('========================')
         left_full = np.hstack([left1, left2])
         right = np.vstack([x_partly , np.ones((1, x_partly.shape[1]))])
         x_k =  left_full @ right
@@ -910,9 +1020,9 @@ def k_step_prediction_linear(x, As, K, store_mid = True, t = -1, offset = []):
 def k_step_prediction_depracated(x, As, K, store_mid = True, t = -1, offset = []):  
     if len(As.shape) == 2:
         return k_step_prediction_linear(x, As, K, store_mid , t , offset)
-
+        #As = np.dstack([As]*x.shape[1])
         
-    
+    # IF t == -1: then it means that we need to consider the full duration.
     x = x.copy()
     if t == -1: # FOR THE FULL DURATION
         if store_mid:
@@ -1086,3 +1196,41 @@ def keep_thres_only(mat, thres, direction = 'lower', perc = False, num = True):
 
 
 
+
+
+
+
+
+
+
+# from matplotlib.text import Annotation
+# from mpl_toolkits.mplot3d.axes3d import Axes3D
+# from mpl_toolkits.mplot3d.proj3d import proj_transform
+# # https://gist.github.com/WetHat/1d6cd0f7309535311a539b42cccca89c
+
+# class Annotation3D(Annotation):
+
+#     def __init__(self, text, xyz, *args, **kwargs):
+#         super().__init__(text, xy=(0, 0), *args, **kwargs)
+#         self._xyz = xyz
+
+#     def draw(self, renderer):
+#         x2, y2, z2 = proj_transform(*self._xyz, self.axes.M)
+#         self.xyz = (x2, y2, z2)
+#         super().draw(renderer)
+     
+# def _annotate3D(ax, text, xyz, *args, **kwargs):
+#     '''Add anotation `text` to an `Axes3d` instance.'''
+    
+#     annotation = Annotation3D(text, xyz, *args, **kwargs)
+#     ax.add_artist(annotation)
+# setattr(Axes3D, 'annotate3D', _annotate3D)       
+    
+    
+    
+    
+    # ax.annotate3D('point 2', (0, 1, 0),
+    #               xytext=(-30, -30),
+    #               textcoords='offset points',
+    #               arrowprops=dict(ec='black', fc='white', shrink=2.5))
+    
