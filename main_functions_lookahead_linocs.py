@@ -656,15 +656,30 @@ def objective_function(A, Bs_main, weights = [], with_identity = False):
     #term2 = A @ A - A2
     #return np.sum(term1 + term2)
 
-
+from distutils.version import LooseVersion
+import scipy
 def optimize_A_using_optimizer(Bs_main, A0 = [], weights = [], with_identity = False):
     #
     if checkEmptyList(A0):
         # Initial guess for A
         A0 = np.zeros_like(Bs_main[0])
-    
+    #print(A0.shape)
     # Minimize the objective function
     #print(A0.shape)
+    
+
+
+    # Get current scipy version
+    scipy_version = LooseVersion(scipy.__version__)
+    
+    # Compare with 1.8.0
+    if scipy_version > LooseVersion("1.8.0"):
+        A0 = A0.flatten()
+    else:
+        pass
+
+
+
     result = minimize(objective_function, A0, method='BFGS', args = (Bs_main, weights,  with_identity))
     
     # The optimized matrix A
