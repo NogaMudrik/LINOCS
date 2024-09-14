@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 
-
+# NOTES:
+    # !!!!!!!!!! LINEAR !!!!!!!!!!!!:
+        #  opt_A, opt_b,b_hats = train_linear_system_opt_A(x_1step, max_ord, Bs_main = [], constraint = [], w_offset = True, cal_offset=True, weights=w, infer_b_way='each', K_b= K_b, w_b = w_b 
+#  train_LOOKAHEAD - NON LINEAR
+#  
 
 ########################################################
 # NAIVE FINDER
@@ -568,9 +572,51 @@ def find_A_fractional_deptacated(k, B):
     A = fractional_matrix_power(B, 1/k)
     return A
 
+def infer_A_under_constraint(y_plus, y_minus, constraint = ['l0'], w_reg = 3, params = {},
+                              reeval = True , is1d_dir = 0, A_former = [], t = 0):
+    #future not l0   
+    
+    #if type(constraint) != type(w_reg) and  (isinstance(constraint, list) and len(constraint) != 1) :
+    #    print('w_reg and cnostraing need to be of the same type. but %s, %s'%(str(constraint), str(w_reg)))
+        
+    
+    if checkEmptyList(A_former) and 'smooth' in constraint and t > 0:
+        raise ValueError('?!?!?!')
+        
+    if is_1d(y_plus):
+        if is1d_dir == 0:
+            y_plus = y_plus.reshape((-1,1 ))
+        else:
+            y_plus = y_plus.reshape((1,-1 ))
+           
+            
+    if is_1d(y_minus):
+        if is1d_dir == 0:
+            y_minus = y_minus.reshape((-1,1 ))
+            shape_inv = (1,-1)
+        else:
+            y_minus = y_minus.reshape((1,-1 ))
+            shape_inv = (1,-1)
+    else:
+        shape_inv = y_minus.shape[::-1]
+       
+    try:    
+        A_hat = y_plus @ np.linalg.pinv(y_minus)
+    except:
+        print('y plus ?!')
+        print(y_plus)
+        A_hat = y_plus @ np.linalg.pinv(y_minus + np.random.rand(*y_minus.shape)*0.01)
+        
+    for  constraint_i in  constraint:
+        w_reg_i = w_reg[constraint_i]
+        A_hat = apply_constraint_after_order(y_plus, y_minus, constraint_i, w_reg_i, A_former = A_former, t = t, A_hat = A_hat, reeval = True)    
+    return A_hat
+
+
 def find_Bs_for_dynamics(data, K, constraint = [], w_reg = [], params = {},
                               reeval = True , is1d_dir = 0, A_former = [], t = 0, 
                               w_offset = True, addi = ''):
+    # Bs  is a list of elements of B. Each B (element of Bs) is the operator y_t  = B y_{t-k}. 
     Bs = []
     for k_i in range(1, K+ 1):
         y_plus = data[:, k_i:]  
@@ -579,8 +625,8 @@ def find_Bs_for_dynamics(data, K, constraint = [], w_reg = [], params = {},
             y_minus_expanded = np.vstack([y_minus, np.ones((1, y_minus.shape[1] )) ])
         else:
             y_minus_expanded = y_minus
-        #print(y_plus.shape)
-        #print(y_minus_expanded.shape)
+        
+        # Bs  is a list of elements of B. Each B (element of Bs) is the operator y_t  = B y_{t-k}. 
         B =  infer_A_under_constraint(y_plus, y_minus_expanded, constraint, w_reg, params,
                                       reeval , is1d_dir, A_former = A_former, t = 0)
         
@@ -597,7 +643,7 @@ def objective_function(A, Bs_main, weights = [], with_identity = False):
     A = A.reshape(Bs_main[0].shape)
     if checkEmptyList(weights):
         weights = np.ones(len(Bs_main))
-    if with_identity:
+    if not with_identity:
         terms = [weights[k]*(np.linalg.matrix_power(A, k + 1) - B_i).T @ (np.linalg.matrix_power(A, k + 1) - B_i)
                  for k, B_i  in enumerate(Bs_main)]
     else:
@@ -1214,9 +1260,11 @@ def train_linear_system_eigenvalas(data, K, Bs_main = [], constraint = [], w_reg
     return  optimize_A_using_optimizer(Bs_main, A0 = Bs_main[0], with_identity =  with_identity )
 
 def infer_higher_order_b_given_A(data, k, A_hat, return_b_hat = True):
+    # calculate the right side which include multiple powers of A
     data_minus = data[:,:-k]
     data_plus = data[:, k:]
 
+    # so data diff is our estimation for y - A^K y_(t-k) = \sum A^k b = data_diff
     data_diff = data_plus - np.linalg.matrix_power(A_hat, k) @ data_minus
     A_hat_sum = np.sum(np.dstack([ 
         np.linalg.matrix_power(A_hat, k_i) for k_i in range(k) 
@@ -1346,7 +1394,7 @@ from sklearn.cluster import KMeans
 
 def train_linear_system_opt_A(data, K, Bs_main = [], constraint = [], w_reg = 3, params = {},
                              A_former = [],  w_offset = True , weights = [], cal_offset = False,
-                             infer_b_way = 'after_A', K_b = 20, w_b = [], with_identity = True):
+                             infer_b_way = 'after_A', K_b = 20, w_b = [], with_identity = False):
                           
     if len(constraint) > 0:
         raise ValueError('future ext.')
@@ -1355,7 +1403,7 @@ def train_linear_system_opt_A(data, K, Bs_main = [], constraint = [], w_reg = 3,
         Bs, Bs_main = find_Bs_for_dynamics(data, K, w_offset = w_offset)
     #print(len(weights))
     #print('############################')
-    A_hat = optimize_A_using_optimizer(Bs_main, A0 = Bs_main[0], weights=weights, with_identity = with_identity)
+    A_hat = optimize_A_using_optimizer(Bs_main, A0 = Bs_main[0], weights=weightswith_identity)
     if cal_offset:
         dim = Bs_main[0].shape[0]
         if checkEmptyList(w_b):
@@ -1898,45 +1946,7 @@ def find_A_decomposed_K_steps(cur_data, F, K, sigma1, sigma2, A_former = [],  w_
 
 
 
-def infer_A_under_constraint(y_plus, y_minus, constraint = ['l0'], w_reg = 3, params = {},
-                              reeval = True , is1d_dir = 0, A_former = [], t = 0):
-    #future not l0   
-    
-    #if type(constraint) != type(w_reg) and  (isinstance(constraint, list) and len(constraint) != 1) :
-    #    print('w_reg and cnostraing need to be of the same type. but %s, %s'%(str(constraint), str(w_reg)))
-        
-    
-    if checkEmptyList(A_former) and 'smooth' in constraint and t > 0:
-        raise ValueError('?!?!?!')
-        
-    if is_1d(y_plus):
-        if is1d_dir == 0:
-            y_plus = y_plus.reshape((-1,1 ))
-        else:
-            y_plus = y_plus.reshape((1,-1 ))
-           
-            
-    if is_1d(y_minus):
-        if is1d_dir == 0:
-            y_minus = y_minus.reshape((-1,1 ))
-            shape_inv = (1,-1)
-        else:
-            y_minus = y_minus.reshape((1,-1 ))
-            shape_inv = (1,-1)
-    else:
-        shape_inv = y_minus.shape[::-1]
-       
-    try:    
-        A_hat = y_plus @ np.linalg.pinv(y_minus)
-    except:
-        print('y plus ?!')
-        print(y_plus)
-        A_hat = y_plus @ np.linalg.pinv(y_minus + np.random.rand(*y_minus.shape)*0.01)
-        
-    for  constraint_i in  constraint:
-        w_reg_i = w_reg[constraint_i]
-        A_hat = apply_constraint_after_order(y_plus, y_minus, constraint_i, w_reg_i, A_former = A_former, t = t, A_hat = A_hat, reeval = True)    
-    return A_hat
+
     
 
 
