@@ -755,9 +755,19 @@ def gaussian_convolve(mat, wind = 10, direction = 1, sigma = 1, norm_sum = True,
 from scipy.sparse import coo_matrix  
 def create_legend(dict_legend, size = 30, save_formats = ['.png','.svg'], 
                   save_addi = 'legend' , dict_legend_marker = {}, 
-                  marker = '.', style = 'plot', s = 500, to_save = True, plot_params = {'lw':5},
-                  save_path = os.getcwd(), params_leg = {}):
-    fig, ax = plt.subplots()
+                  marker = '.', style = 'plot', s = 500, to_save = True, plot_params = {'lw':10},
+                  save_path = os.getcwd(), params_leg = {}, fig = [], ax = [], figsize = None, to_remove_edges =  True):
+    
+    if checkEmptyList(fig) and checkEmptyList(ax):
+        fig, ax = plt.subplots(figsize = figsize)    
+    else:
+        to_remove_edges = False
+    
+        
+    if checkEmptyList(fig) != checkEmptyList(ax):    
+        raise ValueError('??')
+        
+    
     if style == 'plot':
         [ax.plot([],[], 
                  c = dict_legend[area], label = area, marker = dict_legend_marker.get(area), **plot_params) for area in dict_legend]
@@ -767,11 +777,16 @@ def create_legend(dict_legend, size = 30, save_formats = ['.png','.svg'],
         else:
             [ax.scatter([],[], s=s,c = dict_legend[area], label = area, marker = dict_legend_marker.get(area), **plot_params) for area in dict_legend]
     ax.legend(prop = {'size':size},**params_leg)
-    remove_edges(ax, left = False, bottom = False)
+    
+    if to_remove_edges :
+        remove_edges(ax, left = False, bottom = False, include_ticks = False)
     fig.tight_layout()
+    
     if to_save:
         [fig.savefig(save_path + os.sep + 'legend_areas_%s%s'%(save_addi,type_save)) 
          for type_save in save_formats]
+        
+        
         
         
 
