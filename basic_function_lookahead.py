@@ -933,7 +933,7 @@ def one_step_prediction(x, As, t = -1, k = -1, t_start = -1, t_end = -1, offset 
                 As = As[:,:,-1]
             return (x.reshape((-1,1)) @ As).reshape((-1,1)) + offset          
         else:
-            print(As)
+
             if  len(As) == 2 or (len(As) == 3 and  As.shape[-1] == 1):
                 T = x.shape[1] - 1
                 As = np.dstack([As] * T)
