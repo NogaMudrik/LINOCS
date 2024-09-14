@@ -10,8 +10,8 @@ Code for  Mudrik, N., Yezerets, E., Chen, Y., Rozell, C., &amp; Charles, A. (202
 #### Basic functions (unrelated basic functions to use):  
 `_basic_function_lookahead.py_`
 
-
-### How to run?
+![image](https://github.com/NogaMudrik/LINOCS/blob/main/illustration_figure_LINOCS.png?raw=true)
+## How to run?
 
 # EXAMPLE 1: LINEAR EXPERIMENT WITH OFFSET
 ![image](https://github.com/user-attachments/assets/13ec0811-4550-4761-b3d1-adc0ccc57839)
