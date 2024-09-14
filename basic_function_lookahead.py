@@ -981,8 +981,9 @@ def d3tolist(F_3d):
 
         
         
-def k_step_prediction_linear(x, As, K, store_mid = True, t = -1, offset = []): 
-    print('pay attention k_step does not store mid!')
+def k_step_prediction_linear(x, As, K, store_mid = True, t = -1, offset = [], verbose = True): 
+    if verbose:
+        print('pay attention k_step does not store mid!')
     #print('jjjjjjjjjjjjjjjjjjjjjjjjj')
     # PAY ATTENTION T IS NOT INVOLVED HERE
     if K == 1 and checkEmptyList(offset):
@@ -1006,10 +1007,7 @@ def k_step_prediction_linear(x, As, K, store_mid = True, t = -1, offset = []):
         left2 = np.sum(np.dstack([
             np.linalg.matrix_power(As,k_i) for k_i in range(K)
             ]),2) @ offset.reshape((-1,1))
-        # print(left2)
-        # print('???????????????')
-        # print(offset)
-        # print('========================')
+
         left_full = np.hstack([left1, left2])
         right = np.vstack([x_partly , np.ones((1, x_partly.shape[1]))])
         x_k =  left_full @ right
@@ -1030,41 +1028,7 @@ def k_step_prediction_linear(x, As, K, store_mid = True, t = -1, offset = []):
 
 
 
-    
 
-def k_step_prediction_depracated(x, As, K, store_mid = True, t = -1, offset = []):  
-    if len(As.shape) == 2:
-        return k_step_prediction_linear(x, As, K, store_mid , t , offset)
-        #As = np.dstack([As]*x.shape[1])
-        
-    # IF t == -1: then it means that we need to consider the full duration.
-    x = x.copy()
-    if t == -1: # FOR THE FULL DURATION
-        if store_mid:
-            stores = []
-        for k in range(K):
-            x = one_step_prediction(x, As, offset = offset)    
-            if store_mid:
-                stores.append(x)
-        if store_mid:
-            return x, stores
-        return x
-    
-    else: # CHECK ONLY EFFECT OF CHANGING As[:,:,t]
-        if store_mid:
-            stores = []
-        for k in range(K):            
-            t_start = np.max([t - 1,0])         
-            t_end = np.min([t + k - 1, As.shape[2]])
-            x_local = one_step_prediction(x, As, t , k, t_start , t_end , offset = offset)
-            x[:,t_start : t_end+1] = x_local
-           
-            if store_mid:
-                stores.append(x)
-        if store_mid:
-            return x, stores
-        return x
-    
     
 
     
