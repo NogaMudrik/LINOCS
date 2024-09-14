@@ -4,9 +4,11 @@ Code for  Mudrik, N., Yezerets, E., Chen, Y., Rozell, C., &amp; Charles, A. (202
 
 ### General main functions:
 
-Main Functions (for LINOCS and plotting):  _main_functions_lookahead_linocs.py
-_
-Basic functions (unrelated basic functions to use):  _basic_function_lookahead.py_
+##### Main Functions (for LINOCS and plotting):  
+`_main_functions_lookahead_linocs.py_`
+
+#### Basic functions (unrelated basic functions to use):  
+`_basic_function_lookahead.py_`
 
 
 
