@@ -41,3 +41,6 @@ x_look_LINOCS = propagate_dyn_based_on_operator(x0,opt_A, offset = offset_hat_op
 """
 x_step_LINOCS = one_step_prediction(x_noisy, np.dstack([opt_A]*T), offset = offset_hat_opt)
 ```
+
+
+![image](https://github.com/user-attachments/assets/64aa9a0d-5a3b-45dd-a8d7-60f6d156bdc1)
