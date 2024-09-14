@@ -1403,7 +1403,7 @@ def train_linear_system_opt_A(data, K, Bs_main = [], constraint = [], w_reg = 3,
         Bs, Bs_main = find_Bs_for_dynamics(data, K, w_offset = w_offset)
     #print(len(weights))
     #print('############################')
-    A_hat = optimize_A_using_optimizer(Bs_main, A0 = Bs_main[0], weights=weightswith_identity)
+    A_hat = optimize_A_using_optimizer(Bs_main, A0 = Bs_main[0], weights=weights,with_identity =  with_identity)
     if cal_offset:
         dim = Bs_main[0].shape[0]
         if checkEmptyList(w_b):
