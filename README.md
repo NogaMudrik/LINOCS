@@ -42,11 +42,44 @@ x_look_LINOCS = propagate_dyn_based_on_operator(x0,opt_A, offset = offset_hat_op
 x_step_LINOCS = one_step_prediction(x_noisy, np.dstack([opt_A]*T), offset = offset_hat_opt)
 ```
 
-# 1-step vs. LINOCS
+### 1-step vs. LINOCS
 ![image](https://github.com/user-attachments/assets/64aa9a0d-5a3b-45dd-a8d7-60f6d156bdc1)
 
-# MSE
+### MSE
 ![image](https://github.com/user-attachments/assets/d829a151-2e85-4715-a318-0375e81f712a)
 
-# Test different training and prediction orders
+### Test different training and prediction orders
 ![image](https://github.com/user-attachments/assets/8fc46929-e0f5-45ed-af10-640844024019)
+
+
+
+# Example 2 - dLDS-LINOCS: 
+## See demo/tutorial in notebook `https://github.com/NogaMudrik/LINOCS/blob/main/run_dLDS_Lorenz_example.ipynb` 
+### importantly, this requires installing pylops version 1.18.2:
+#### `!pip install pylops==1.18.2`
+
+To train dLDS:
+```
+np.random.seed(seed)
+M = np.random.randint(3, 10)    
+K = np.random.randint(1, 5)    
+l1 = np.random.rand()*0.2 #1.2 # 0.9# 2 #  #5
+decor_w = np.random.rand()*0.1
+max_iters = 70
+save_path = os.getcwd()
+start_l1 = np.random.randint(0, 5)
+start_l1  = np.random.choice([start_l1 , 0])
+
+data_run = lorenz_mat
+
+
+    
+l2_F = np.random.rand()
+freq_update_F = 5
+cs_h, F_h, F_full_h, cs_full_h = train_dlds_LINOCS(data_run, F0 = [], M = M, max_iters = max_iters, l1 = l1, 
+                                                   to_save = True, save_path = save_path, 
+                                                    seed = seed, start_l1 = start_l1, K = K,freq_save = 1,
+                                                   l1_int = 1,freq_update_F = freq_update_F,
+                                                    interval_round = 1, l2_F = l2_F,  with_identity =  with_identity, decor = decor, addi_save = 'example', decor_w = decor_w 
+                                    )
+```
