@@ -543,6 +543,8 @@ def save_fig(name_fig,fig, save_path = '', formats = ['png','svg'], params_save 
     [fig.savefig(save_path + os.sep + '%s.%s'%(name_fig, format_i), **params_save) for format_i in formats]
         
         
+import pylops
+from packaging import version
 
 def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0, nouter = 50,
                       ):
@@ -642,9 +644,22 @@ def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0,
 
       x  = omp.coef_ # pylops.optimization.sparsity.OMP(Aop, b.flatten(),                                                  niter_outer=params['num_iters'], sigma = l1)[0]     
   elif params['solver'].lower() == 'spgl1' :
-      print('here spgl1!!!!!!!!!!')
-      Aop = pylops.MatrixMult(A)
-      x = pylops.optimization.sparsity.SPGL1(Aop, b.flatten(),iter_lim = params['num_iters'],  tau = l1)[0]      
+      
+      Aop = pylops.MatrixMult(A)   
+        
+      # Get current version
+      current_version = pylops.__version__
+        
+      # Check if version is greater than 1.18.2
+      if version.parse(current_version) > version.parse("1.18.2"):
+          print(f"pylops version {current_version} is greater than 1.18.2. Hence does not limit iter_lim")
+          x = pylops.optimization.sparsity.SPGL1(Aop, b.flatten(),  tau = l1)[0]   #iter_lim = params['num_iters']
+      else:
+          x = pylops.optimization.sparsity.SPGL1(Aop, b.flatten(),iter_lim = params['num_iters'],  tau = l1)[0]  
+        
+        
+
+         
       
   elif params['solver'].lower() == 'irls' :
    
