@@ -42,11 +42,73 @@ x_look_LINOCS = propagate_dyn_based_on_operator(x0,opt_A, offset = offset_hat_op
 x_step_LINOCS = one_step_prediction(x_noisy, np.dstack([opt_A]*T), offset = offset_hat_opt)
 ```
 
-# 1-step vs. LINOCS
+### 1-step vs. LINOCS
 ![image](https://github.com/user-attachments/assets/64aa9a0d-5a3b-45dd-a8d7-60f6d156bdc1)
 
-# MSE
+### MSE
 ![image](https://github.com/user-attachments/assets/d829a151-2e85-4715-a318-0375e81f712a)
 
-# Test different training and prediction orders
+### Test different training and prediction orders
 ![image](https://github.com/user-attachments/assets/8fc46929-e0f5-45ed-af10-640844024019)
+
+
+
+# Example 2 - dLDS-LINOCS: 
+## See demo/tutorial in notebook `https://github.com/NogaMudrik/LINOCS/blob/main/run_dLDS_Lorenz_example.ipynb` 
+### importantly, this requires installing pylops version 1.18.2:
+#### `!pip install pylops==1.18.2`
+
+To train dLDS:
+```
+np.random.seed(seed)
+M = np.random.randint(3, 10)    
+K = np.random.randint(1, 5)    
+l1 = np.random.rand()*0.2 #1.2 # 0.9# 2 #  #5
+decor_w = np.random.rand()*0.1
+max_iters = 70
+save_path = os.getcwd()
+start_l1 = np.random.randint(0, 5)
+start_l1  = np.random.choice([start_l1 , 0])
+
+data_run = lorenz_mat
+
+
+    
+l2_F = np.random.rand()
+freq_update_F = 5
+cs_h, F_h, F_full_h, cs_full_h = train_dlds_LINOCS(data_run, F0 = [], M = M, max_iters = max_iters, l1 = l1, 
+                                                   to_save = True, save_path = save_path, 
+                                                    seed = seed, start_l1 = start_l1, K = K,freq_save = 1,
+                                                   l1_int = 1,freq_update_F = freq_update_F,
+                                                    interval_round = 1, l2_F = l2_F,  with_identity =  with_identity, decor = decor, addi_save = 'example', decor_w = decor_w 
+                                    )
+```
+
+some results from applying dLDS-LINOCS on the Lorenz attractor:
+#### LINOCS vs. 1-step
+![image](https://github.com/user-attachments/assets/d136eb8a-fc4f-48a2-8e88-966858899578)
+![image](https://github.com/user-attachments/assets/28cb45e9-721b-4d1e-8b66-77cb12555637)
+
+
+#### sub-dynamics (as identified by LINOCS)
+![image](https://github.com/user-attachments/assets/4548a17e-9a38-4497-8847-d849385d000b)
+
+### the associated coefficients 
+![image](https://github.com/user-attachments/assets/f1c9f305-8ac9-43af-a1a9-d4987d277fe4)
+![image](https://github.com/user-attachments/assets/e8375848-d46c-4c43-9bea-029af5e784f8)
+
+
+### Reconstructions with marking of active sub-dynamics 
+![image](https://github.com/user-attachments/assets/0ce58b1f-6ee6-4247-a438-4b30ccd255e4)
+
+### Lorenz x-values on identified $c$-space
+![image](https://github.com/user-attachments/assets/f712d5d5-7f0e-4913-b8ba-9a3a5ecff51f)
+![image](https://github.com/user-attachments/assets/f4e0e65e-0c63-4597-b47f-03b7236e02a6)
+
+
+
+
+
+
+
+
