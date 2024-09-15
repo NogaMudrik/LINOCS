@@ -598,7 +598,7 @@ def opt_F(x,c, F, num_zeros = 12, std_noisy_c = 0.1, seed = 0, style_compare = '
                         F_hat = left   @ np.linalg.pinv(right)
                     
                 else:
-                    raise ValueError('why?~!?')
+                    #raise ValueError('why?~!?')
                     if  with_identity:
                         F_hat = np.hstack([x_plus - np.eye(len(x_plus)) @ x_minus , np.zeros((x_plus.shape[0], xcs.shape[0]))]) @ np.linalg.pinv(np.hstack([xcs,  l2_F*np.eye(xcs.shape[0])]))
                     else:

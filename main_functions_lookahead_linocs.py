@@ -1406,7 +1406,15 @@ def find_A_basis_from_operators(operators, metric = 'mse', thres_percentile = 40
     
         
 from sklearn.cluster import KMeans    
-
+def create_simple_cbar(vmin = 0, vmax = 1, cmap = 'Reds', to_return = False, center = None, cbar_kws = {}, aspect = 10):
+    fig, axs = plt.subplots()
+    sns.heatmap(np.random.rand(3,3)*np.nan, vmin = vmin, vmax = vmax , cmap = cmap, center = center, cbar_kws=cbar_kws, ax = axs)
+    # Adjust the width of the colorbar
+    cbar = axs.collections[0].colorbar
+    cbar.ax.set_aspect(aspect)
+    remove_edges(axs, left = False, bottom = False, include_ticks = False)
+    if to_return:
+        return fig
 def train_linear_system_opt_A(data, K, Bs_main = [], constraint = [], w_reg = 3, params = {},
                              A_former = [],  w_offset = True , weights = [], cal_offset = False,
                              infer_b_way = 'after_A', K_b = 20, w_b = [], with_identity = False):

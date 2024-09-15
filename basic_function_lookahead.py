@@ -587,9 +587,9 @@ def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0,
                
                - . Refers to the way the coefficients should be claculated (inv -> no l1 regularization)
   """ 
-  #print(params['solver'])
+  
   params = {**{'threshkind':'soft','solver':'spgl1','num_iters':10}, **params}
-  print(params['solver'])
+  #print(params['solver'])
   #print( params['solver'].lower() )
   if np.isnan(A).any():
       print('there is a nan in A')
@@ -642,7 +642,7 @@ def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0,
 
       x  = omp.coef_ # pylops.optimization.sparsity.OMP(Aop, b.flatten(),                                                  niter_outer=params['num_iters'], sigma = l1)[0]     
   elif params['solver'].lower() == 'spgl1' :
-      print('here spgl1!!!!!!!!!!')
+      #print('here spgl1!!!!!!!!!!')
       Aop = pylops.MatrixMult(A)
       x = pylops.optimization.sparsity.SPGL1(Aop, b.flatten(),iter_lim = params['num_iters'],  tau = l1)[0]      
       
