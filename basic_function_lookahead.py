@@ -543,7 +543,7 @@ def save_fig(name_fig,fig, save_path = '', formats = ['png','svg'], params_save 
     [fig.savefig(save_path + os.sep + '%s.%s'%(name_fig, format_i), **params_save) for format_i in formats]
         
         
-import pylops
+
 from packaging import version
 
 def solve_Lasso_style(A, b, l1, params = {}, lasso_params = {},random_state = 0, nouter = 50,
