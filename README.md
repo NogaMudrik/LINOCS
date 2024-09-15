@@ -83,3 +83,32 @@ cs_h, F_h, F_full_h, cs_full_h = train_dlds_LINOCS(data_run, F0 = [], M = M, max
                                                     interval_round = 1, l2_F = l2_F,  with_identity =  with_identity, decor = decor, addi_save = 'example', decor_w = decor_w 
                                     )
 ```
+
+some results from applying dLDS-LINOCS on the Lorenz attractor:
+#### LINOCS vs. 1-step
+![image](https://github.com/user-attachments/assets/d136eb8a-fc4f-48a2-8e88-966858899578)
+![image](https://github.com/user-attachments/assets/28cb45e9-721b-4d1e-8b66-77cb12555637)
+
+
+#### sub-dynamics (as identified by LINOCS)
+![image](https://github.com/user-attachments/assets/4548a17e-9a38-4497-8847-d849385d000b)
+
+### the associated coefficients 
+![image](https://github.com/user-attachments/assets/f1c9f305-8ac9-43af-a1a9-d4987d277fe4)
+![image](https://github.com/user-attachments/assets/e8375848-d46c-4c43-9bea-029af5e784f8)
+
+
+### Reconstructions with marking of active sub-dynamics 
+![image](https://github.com/user-attachments/assets/0ce58b1f-6ee6-4247-a438-4b30ccd255e4)
+
+### Lorenz x-values on identified $c$-space
+![image](https://github.com/user-attachments/assets/f712d5d5-7f0e-4913-b8ba-9a3a5ecff51f)
+![image](https://github.com/user-attachments/assets/f4e0e65e-0c63-4597-b47f-03b7236e02a6)
+
+
+
+
+
+
+
+
