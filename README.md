@@ -1,5 +1,13 @@
 # LINOCS
-Code for  Mudrik, N., Yezerets, E., Chen, Y., Rozell, C., &amp; Charles, A. (2024). Linocs: Lookahead inference of networked operators for continuous stability. arXiv preprint arXiv:2404.18267. *Accepted at TMLR (Sep. 2024).*
+Code for  *Mudrik, N., Yezerets, E., Chen, Y., Rozell, C. J., & Shabti Charles, A. (2024). LINOCS: Lookahead inference of networked operators for continuous stability. Transactions on Machine Learning Research (TMLR). https://openreview.net/forum?id=A6D3PYSyqJ*
+
+# BibTex for citation:
+@article{mudrik2024linocs,
+  title={Linocs: Lookahead inference of networked operators for continuous stability},
+  author={Mudrik, Noga and Yezerets, Eva and Chen, Yenho and Rozell, Christopher and Charles, Adam},
+  journal={arXiv preprint arXiv:2404.18267},
+  year={2024}
+}
 
 
 ### General main functions:
